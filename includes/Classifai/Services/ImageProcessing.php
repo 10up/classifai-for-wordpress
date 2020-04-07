@@ -38,7 +38,7 @@ class ImageProcessing extends Service {
 	 * Enqueue the script for the media modal.
 	 */
 	public function enqueue_media_scripts() {
-		wp_enqueue_script( 'media-script', CLASSIFAI_PLUGIN_URL . '/dist/js/media.min.js', array( 'jquery', 'media-editor' ), CLASSIFAI_PLUGIN_VERSION, true );
+		wp_enqueue_script( 'media-script', CLASSIFAI_PLUGIN_URL . '/dist/js/media.js', array( 'jquery', 'media-editor' ), CLASSIFAI_PLUGIN_VERSION, true );
 	}
 
 	/**
