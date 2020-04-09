@@ -167,13 +167,17 @@ class NLU extends Provider {
 	 * Enqueue the editor scripts.
 	 */
 	public function enqueue_editor_assets() {
-		wp_enqueue_script(
-			'classifai-editor', // Handle.
-			CLASSIFAI_PLUGIN_URL . 'dist/js/editor.min.js',
-			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor', 'wp-edit-post' ),
-			CLASSIFAI_PLUGIN_VERSION,
-			true
-		);
+		$assets = CLASSIFAI_PLUGIN_DIR . '/dist/js/assets.php';
+		if ( file_exists( $assets ) ) {
+			$script_assets = require $assets;
+			wp_enqueue_script(
+				'classifai-editor', // Handle.
+				CLASSIFAI_PLUGIN_URL . 'dist/js/editor.js',
+				$script_assets['editor.js']['dependencies'],
+				$script_assets['editor.js']['version'],
+				true
+			);
+		}
 	}
 
 	/**
@@ -182,7 +186,7 @@ class NLU extends Provider {
 	public function enqueue_admin_assets() {
 		wp_enqueue_script(
 			'classifai-admin',
-			CLASSIFAI_PLUGIN_URL . 'dist/js/admin.min.js',
+			CLASSIFAI_PLUGIN_URL . 'dist/js/admin.js',
 			[],
 			CLASSIFAI_PLUGIN_VERSION,
 			true
