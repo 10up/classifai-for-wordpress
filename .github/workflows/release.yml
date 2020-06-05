@@ -18,6 +18,8 @@ jobs:
       run: |
         npm install
         npm run build
+        npm run makepot
+        composer install --no-dev
     - name: Release to Stable
       uses: ./.github/action-release/
       env:

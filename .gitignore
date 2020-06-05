@@ -4,6 +4,7 @@ phpunit.xml
 /dist
 coverage
 /docs
+languages
 
 debug.log
 
@@ -41,6 +42,3 @@ Thumbs.db
 Desktop.ini
 
 config.local.php
-
-# Don't ignore
-!/vendor/yahnis-elsts
