@@ -1,14 +1,14 @@
-# Copyright (C) 2020 10up
+# Copyright (C) 2021 10up
 # This file is distributed under the GPLv2.
 msgid ""
 msgstr ""
 "Project-Id-Version: ClassifAI 1.6.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/classifai\n"
-"POT-Creation-Date: 2020-11-02 21:42:57+00:00\n"
+"POT-Creation-Date: 2021-02-26 21:17:36+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2020-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2021-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: node-wp-i18n 1.2.3\n"
@@ -67,6 +67,15 @@ msgstr ""
 msgid "ClassifAI requires setup"
 msgstr ""
 
+#: includes/Classifai/Admin/SavePostHandler.php:237
+#: includes/Classifai/Providers/Azure/ComputerVision.php:194
+msgid "Generate Tags"
+msgstr ""
+
+#: includes/Classifai/Admin/SavePostHandler.php:261
+msgid "Post ID to generate tags."
+msgstr ""
+
 #: includes/Classifai/Providers/AWS/Comprehend.php:50
 #: includes/Classifai/Providers/Azure/ComputerVision.php:608
 msgid "Endpoint URL"
@@ -74,8 +83,8 @@ msgstr ""
 
 #: includes/Classifai/Providers/AWS/Comprehend.php:61
 #: includes/Classifai/Providers/Azure/ComputerVision.php:620
-#: includes/Classifai/Providers/Watson/NLU.php:196
-#: includes/Classifai/Providers/Watson/NLU.php:270
+#: includes/Classifai/Providers/Watson/NLU.php:206
+#: includes/Classifai/Providers/Watson/NLU.php:280
 msgid "API Key"
 msgstr ""
 
@@ -93,10 +102,6 @@ msgstr ""
 
 #: includes/Classifai/Providers/Azure/ComputerVision.php:194
 msgid "Rescan Tags"
-msgstr ""
-
-#: includes/Classifai/Providers/Azure/ComputerVision.php:194
-msgid "Generate Tags"
 msgstr ""
 
 #: includes/Classifai/Providers/Azure/ComputerVision.php:195
@@ -184,20 +189,20 @@ msgid "Authenticated"
 msgstr ""
 
 #: includes/Classifai/Providers/Azure/ComputerVision.php:862
-#: includes/Classifai/Providers/Watson/NLU.php:662
+#: includes/Classifai/Providers/Watson/NLU.php:672
 #: includes/Classifai/Services/ServicesManager.php:364
 msgid "yes"
 msgstr ""
 
 #: includes/Classifai/Providers/Azure/ComputerVision.php:862
-#: includes/Classifai/Providers/Watson/NLU.php:662
+#: includes/Classifai/Providers/Watson/NLU.php:672
 #: includes/Classifai/Services/ServicesManager.php:364
 msgid "no"
 msgstr ""
 
 #: includes/Classifai/Providers/Azure/ComputerVision.php:863
-#: includes/Classifai/Providers/Watson/NLU.php:242
-#: includes/Classifai/Providers/Watson/NLU.php:663
+#: includes/Classifai/Providers/Watson/NLU.php:252
+#: includes/Classifai/Providers/Watson/NLU.php:673
 msgid "API URL"
 msgstr ""
 
@@ -218,7 +223,7 @@ msgid "Latest response - OCR"
 msgstr ""
 
 #: includes/Classifai/Providers/Azure/ComputerVision.php:880
-#: includes/Classifai/Providers/Watson/NLU.php:680
+#: includes/Classifai/Providers/Watson/NLU.php:690
 msgid "N/A"
 msgstr ""
 
@@ -288,21 +293,21 @@ msgstr ""
 msgid "Concept Taxonomy"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:195
+#: includes/Classifai/Providers/Watson/NLU.php:205
 msgid "API Password"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:197
-#: includes/Classifai/Providers/Watson/NLU.php:289
+#: includes/Classifai/Providers/Watson/NLU.php:207
+#: includes/Classifai/Providers/Watson/NLU.php:299
 msgid "Use an API Key instead?"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:198
-#: includes/Classifai/Providers/Watson/NLU.php:288
+#: includes/Classifai/Providers/Watson/NLU.php:208
+#: includes/Classifai/Providers/Watson/NLU.php:298
 msgid "Use a username/password instead?"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:214
+#: includes/Classifai/Providers/Watson/NLU.php:224
 msgid ""
 "Don't have an IBM Cloud account yet? <a title=\"Register for an IBM Cloud "
 "account\" href=\"%1$s\">Register for one</a> and set up a <a "
@@ -310,43 +315,43 @@ msgid ""
 "key."
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:255
+#: includes/Classifai/Providers/Watson/NLU.php:265
 msgid "API Username"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:318
+#: includes/Classifai/Providers/Watson/NLU.php:328
 msgid "Post Types to Classify"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:442
+#: includes/Classifai/Providers/Watson/NLU.php:452
 msgid "Watson Category Settings"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:447
+#: includes/Classifai/Providers/Watson/NLU.php:457
 msgid "Enable"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:551
+#: includes/Classifai/Providers/Watson/NLU.php:561
 msgid "IBM Watson NLU Authentication Failed. Please check credentials."
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:662
+#: includes/Classifai/Providers/Watson/NLU.php:672
 msgid "Configured"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:664
+#: includes/Classifai/Providers/Watson/NLU.php:674
 msgid "API username"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:665
+#: includes/Classifai/Providers/Watson/NLU.php:675
 msgid "Post types"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:666
+#: includes/Classifai/Providers/Watson/NLU.php:676
 msgid "Features"
 msgstr ""
 
-#: includes/Classifai/Providers/Watson/NLU.php:667
+#: includes/Classifai/Providers/Watson/NLU.php:677
 msgid "Latest response"
 msgstr ""
 

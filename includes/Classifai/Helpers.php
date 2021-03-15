@@ -483,3 +483,27 @@ function get_largest_size_and_dimensions_image_url( $full_image, $full_url, $met
 
 	return null;
 }
+
+/**
+ * Helper function to determine if post content should be processed for published posts.
+ *
+ * @param int $post_id Post ID.
+ *
+ * @return bool
+ */
+function allow_language_processing_for_published_content( $post_id ) {
+	if ( empty( $post_id ) ) {
+		return false;
+	}
+
+	$supported   = \Classifai\get_supported_post_types();
+	$post_type   = get_post_type( $post_id );
+	$post_status = get_post_status( $post_id );
+
+	// Only process content for published, supported items and if features are enabled.
+	if ( 'publish' === $post_status && in_array( $post_type, $supported, true ) && \Classifai\language_processing_features_enabled() ) {
+		return true;
+	}
+
+	return false;
+}
