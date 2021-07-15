@@ -12,6 +12,7 @@ use WP_Error;
 use function Classifai\computer_vision_max_filesize;
 use function Classifai\get_largest_acceptable_image_url;
 use function Classifai\get_modified_image_source_url;
+use function Classifai\attachment_is_pdf;
 
 class ComputerVision extends Provider {
 
@@ -55,6 +56,7 @@ class ComputerVision extends Provider {
 			'enable_image_tagging'  => true,
 			'enable_smart_cropping' => false,
 			'enable_ocr'            => false,
+			'enable_read_pdf'       => false,
 			'caption_threshold'     => 75,
 			'tag_threshold'         => 70,
 			'image_tag_taxonomy'    => 'classifai-image-tags',
@@ -96,6 +98,12 @@ class ComputerVision extends Provider {
 			add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_editor_assets' ] );
 			add_filter( 'the_content', [ $this, 'add_ocr_aria_describedby' ] );
 			add_filter( 'rest_api_init', [ $this, 'add_ocr_data_to_api_response' ] );
+		}
+
+		$enable_read_pdf = isset( $settings['enable_read_pdf'] ) && '1' === $settings['enable_read_pdf'];
+		if ( $enable_read_pdf ) {
+			add_action( 'add_attachment', [ $this, 'read_pdf' ] );
+			add_action( 'classifai_retry_get_read_result', [ $this, 'do_read_cron' ], 10, 2 );
 		}
 	}
 
@@ -192,16 +200,33 @@ class ComputerVision extends Provider {
 
 	/**
 	 * Adds a meta box for rescanning options if the settings are configured
+	 *
+	 * @param \WP_Post $post The post object.
 	 */
-	public function setup_attachment_meta_box() {
-		add_meta_box(
-			'attachment_meta_box',
-			__( 'ClassifAI Image Processing', 'classifai' ),
-			[ $this, 'attachment_data_meta_box' ],
-			'attachment',
-			'side',
-			'high'
-		);
+	public function setup_attachment_meta_box( $post ) {
+		$settings = get_option( 'classifai_computer_vision' );
+
+		if ( wp_attachment_is_image( $post ) ) {
+			add_meta_box(
+				'attachment_meta_box',
+				__( 'ClassifAI Image Processing', 'classifai' ),
+				[ $this, 'attachment_data_meta_box' ],
+				'attachment',
+				'side',
+				'high'
+			);
+		}
+
+		if ( attachment_is_pdf( $post ) && $settings && isset( $settings['enable_read_pdf'] ) && '1' === $settings['enable_read_pdf'] ) {
+			add_meta_box(
+				'attachment_meta_box',
+				__( 'ClassifAI PDF Processing', 'classifai' ),
+				[ $this, 'attachment_pdf_data_meta_box' ],
+				'attachment',
+				'side',
+				'high'
+			);
+		}
 	}
 
 	/**
@@ -243,6 +268,34 @@ class ComputerVision extends Provider {
 				</label>
 			</div>
 		<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Display PDF scanning actions.
+	 *
+	 * @param \WP_Post $post The post object.
+	 */
+	public function attachment_pdf_data_meta_box( $post ) {
+		$read = empty( get_the_content( null, false, $post ) ) ? __( 'Scan PDF content', 'classifai' ) : __( 'Rescan PDF content', 'classifai' );
+		$status = get_post_meta( $post->ID, '_classifai_azure_read_status', true );
+		if ( ! empty( $status['status'] ) && 'running' === $status['status'] ) {
+			$running = true;
+		} else {
+			$running = false;
+		}
+		?>
+		<div class="misc-publishing-actions">
+			<div class="misc-pub-section">
+				<label for="rescan-pdf">
+					<input type="checkbox" value="yes" id="rescan-pdf" name="rescan-pdf" <?php disabled( $running ); ?>/>
+					<?php echo esc_html( $read ); ?>
+					<?php if ( $running ) : ?>
+						<?php echo ' - ' . esc_html__( 'In progress!', 'classifai' ); ?>
+					<?php endif; ?>
+				</label>
+			</div>
 		</div>
 		<?php
 	}
@@ -299,6 +352,11 @@ class ComputerVision extends Provider {
 		if ( filter_input( INPUT_POST, 'rescan-ocr', FILTER_SANITIZE_STRING ) ) {
 			$this->ocr_processing( wp_get_attachment_metadata( $attachment_id ), $attachment_id, true );
 		}
+
+		if ( filter_input( INPUT_POST, 'rescan-pdf' ) ) {
+			$this->read_pdf( $attachment_id );
+		}
+
 	}
 
 	/**
@@ -567,6 +625,52 @@ class ComputerVision extends Provider {
 	}
 
 	/**
+	 * Read PDF content and update the description of attachment.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 */
+	public function read_pdf( $attachment_id ) {
+		$settings = $this->get_settings();
+
+		if ( ! is_array( $settings ) ) {
+			return new WP_Error( 'invalid_settings', 'Can not retrieve the plugin settings.' );
+		}
+
+		$should_read_pdf = isset( $settings['enable_read_pdf'] ) && '1' === $settings['enable_read_pdf'];
+
+		if ( ! $should_read_pdf ) {
+			return false;
+		}
+
+		// Direct file system access is required for the current implementation of this feature.
+		if ( ! function_exists( 'get_filesystem_method' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		}
+
+		$access_type = get_filesystem_method();
+
+		if ( 'direct' !== $access_type || ! WP_Filesystem() ) {
+			return new WP_Error( 'invalid_access_type', 'Invalid access type! Direct file system access is required.' );
+		}
+
+		$read = new Read( $settings, intval( $attachment_id ) );
+
+		return $read->read_document();
+	}
+
+	/**
+	 * Wrapper action callback for Read cron job.
+	 *
+	 * @param string $operation_url Operation URL for checking the read status.
+	 * @param int    $attachment_id Attachment ID.
+	 */
+	public function do_read_cron( $operation_url, $attachment_id ) {
+		$settings = $this->get_settings();
+
+		( new Read( $settings, intval( $attachment_id ) ) )->check_read_result( $operation_url );
+	}
+
+	/**
 	 * Generate the image tags for the image being uploaded.
 	 *
 	 * @param array $tags          Array ot tags returned from the API.
@@ -759,6 +863,22 @@ class ComputerVision extends Provider {
 				),
 			]
 		);
+		add_settings_field(
+			'enable-read-pdf',
+			esc_html__( 'Enable Scanning PDF', 'classifai' ),
+			[ $this, 'render_input' ],
+			$this->get_option_name(),
+			$this->get_option_name(),
+			[
+				'label_for'     => 'enable_read_pdf',
+				'input_type'    => 'checkbox',
+				'default_value' => $default_settings['enable_read_pdf'],
+				'description'   => __(
+					'Extract visible text from multi-pages PDF documents. Store the result as the attachment description.',
+					'classifai'
+				),
+			]
+		);
 	}
 
 	/**
@@ -793,6 +913,7 @@ class ComputerVision extends Provider {
 			'enable_image_tagging',
 			'enable_smart_cropping',
 			'enable_ocr',
+			'enable_read_pdf',
 		];
 
 		foreach ( $checkbox_settings as $checkbox_setting ) {
@@ -959,6 +1080,10 @@ class ComputerVision extends Provider {
 
 		if ( 'ocr' === $route_to_call ) {
 			return $this->ocr_processing( $metadata, $post_id, true );
+		}
+
+		if ( 'read-pdf' === $route_to_call ) {
+			return $this->read_pdf( $post_id );
 		}
 
 		// Allow rescanning image that are not stored in local storage.

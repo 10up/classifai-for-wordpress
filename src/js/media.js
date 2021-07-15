@@ -1,4 +1,6 @@
 ( function( $ )  {
+	const { __ } = wp.i18n;
+	const { get } = window.lodash;
 
 	/**
 	 *
@@ -12,8 +14,6 @@
 		const [ spinner ] = button.parentNode.getElementsByClassName( 'spinner' );
 		const [ errorContainer ] = button.parentNode.getElementsByClassName( 'error' );
 		const path = `${ endpoint }${ postID }`;
-		const { __ } = wp.i18n;
-		const { get } = window.lodash;
 
 		button.setAttribute( 'disabled', 'disabled' );
 		spinner.style.display = 'inline-block';
@@ -52,6 +52,7 @@
 				const imageTagsButton = document.getElementById( 'classifai-rescan-image-tags' );
 				const ocrScanButton = document.getElementById( 'classifai-rescan-ocr' );
 				const smartCropButton = document.getElementById( 'classifai-rescan-smart-crop' );
+				const readButton = document.getElementById( 'classifai-rescan-pdf' );
 
 				if ( altTagsButton ) {
 					altTagsButton.addEventListener( 'click', e => handleClick(
@@ -99,6 +100,15 @@
 							endpoint: '/classifai/v1/smart-crop/'
 						}
 					) );
+				}
+
+				if ( readButton ) {
+					readButton.addEventListener( 'click', e => {
+						const postID = e.target.getAttribute( 'data-id' );
+						wp.apiRequest( { path: `/classifai/v1/read-pdf/${postID}` } );
+						e.target.setAttribute( 'disabled', 'disabled' );
+						e.target.textContent = __( 'Read API requested!', 'classifai' );
+					} );
 				}
 			} );
 		}

@@ -509,3 +509,19 @@ function get_modified_image_source_url( $post_id ) {
 	 */
 	return apply_filters( 'classifai_generate_image_alt_tags_source_url', null, $post_id );
 }
+
+/**
+ * Check if attachment is PDF document.
+ *
+ * @param \WP_post $post Post object for the attachment being viewed.
+ */
+function attachment_is_pdf( $post ) {
+	$mime_type          = get_post_mime_type( $post );
+	$matched_extensions = explode( '|', array_search( $mime_type, wp_get_mime_types(), true ) );
+
+	if ( in_array( 'pdf', $matched_extensions, true ) ) {
+		return true;
+	}
+
+	return false;
+}
